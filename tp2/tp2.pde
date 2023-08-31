@@ -5,16 +5,19 @@ FMouseJoint cadena;// Cadena para conectar la pala al mouse
 FCircle[] calabazas;// Arreglo para almacenar las calabazas
 FCircle bruja;// Bruja
 FCircle pala; // Pala
+FBox huerta; // huerta
 
-int contador = 3;// Establece el tiempo total en segundos
+int contador = 1;// Establece el tiempo total en segundos
 boolean puedenAparecerCalabazas = false; // Controla si se pueden generar calabazas
 int empiezaElTiempo;// Tiempo de inicio
 
 PImage imagenCalabaza, imagenPala, imagenBruja;// Imágenes para elementos
 
+int vidaDeLaHuerta = 100;
+int vidaDeLaBruja = 100;
 
 void setup() {
-  size(800, 600);
+  size(900, 600);
 
   Fisica.init(this);
   mundo = new FWorld();// Crea el mundo físico
@@ -28,9 +31,9 @@ void setup() {
   empiezaElTiempo = millis();// Toma el tiempo de inicio
 
   // Configura la pala
-  pala = new FCircle(50);
+  pala = new FCircle(30);
   pala.setPosition(width / 2, height / 2);
-  pala.attachImage(imagenPala);
+  //pala.attachImage(imagenPala);
   mundo.add(pala);
 
   cadena = new FMouseJoint(pala, width / 2, height / 2);// Crea una cadena para la pala
@@ -40,12 +43,20 @@ void setup() {
   bruja = new FCircle(90);
   bruja.setPosition(100, 100);
   bruja.setStatic(true);
-  bruja.attachImage(imagenBruja);
+  //bruja.attachImage(imagenBruja);
   bruja.setGrabbable(false);
   mundo.add(bruja);
 
+  // Configura la huerta
+  huerta = new FBox(width, 100);
+  huerta.setPosition(width / 2, height - 50); // Coloca la huerta en la parte inferior de la ventana
+  huerta.setStatic(true);
+  huerta.setGrabbable(false);
+  mundo.add(huerta);
+
   calabazas = new FCircle[100]; // Inicializa el arreglo de calabazas
 }
+
 
 void draw() {
   background(255);
@@ -67,9 +78,9 @@ void draw() {
   if (puedenAparecerCalabazas) {
     for (int i = 0; i < calabazas.length; i++) {
       if (calabazas[i] == null) { //Busca un espacio vacion en el arreglo
-        calabazas[i] = new FCircle(70); // Crea una nueva calabaza en el espacio vacio
+        calabazas[i] = new FCircle(50); // Crea una nueva calabaza en el espacio vacio
         calabazas[i].setPosition(random(200, width - 100), -15); //Aparece en una posicion random fuera de la pantalla
-        calabazas[i].attachImage(imagenCalabaza); //Se le carga la imagen de la calabaza
+        //calabazas[i].attachImage(imagenCalabaza); //Se le carga la imagen de la calabaza
         calabazas[i].setGrabbable(false); //Evita que se pueda mover con el mouse
         mundo.add(calabazas[i]);// Agrega la calabaza al mundo
         break;  // Sale del bucle una vez que se agrega una calabaza
@@ -80,6 +91,7 @@ void draw() {
   cadena.setTarget(mouseX, mouseY); // Actualiza el objetivo de la cadena (pala sigue al mouse)
 }
 
+
 void contactStarted(FContact contact) {
   FBody body1 = contact.getBody1();//Cuerpo 1 dentro del mundo de fisica (puede ser calabaza o bruja)
   FBody body2 = contact.getBody2();//Cuerpo 2 dentro del mundo de fisica (puede ser calabaza o bruja)
@@ -88,9 +100,16 @@ void contactStarted(FContact contact) {
   for (int i = 0; i < calabazas.length; i++) { //El maximo de i es el maximo de calabazas
     if ((body1 == bruja && body2 == calabazas[i]) || (body1 == calabazas[i] && body2 == bruja)) {
       // Si hay colisión entre la bruja y una calabaza
-      println("¡Una calabaza tocó a la bruja!");
+      println("¡Una calabaza tocó a la bruja! Le queda " + vidaDeLaBruja + " de vida");
+      vidaDeLaBruja-=10;
       mundo.remove(calabazas[i]);  // Elimina la calabaza que tocó a la bruja
       calabazas[i] = null;  // Marca el espacio en el arreglo como disponible
+      break;  // Sale del bucle una vez que se finaliza la colisión
+    }
+    if ((body1 == huerta && body2 == calabazas[i]) || (body1 == calabazas[i] && body2 == huerta)) {
+      // Si hay colisión entre la bruja y una calabaza
+      println("¡Una calabaza rompio la huerta! Queda el %"+vidaDeLaHuerta+ " de la huerta sana.");
+      vidaDeLaHuerta-=1;
       break;  // Sale del bucle una vez que se finaliza la colisión
     }
   }

@@ -7,7 +7,7 @@ FCircle bruja;// Bruja
 FCircle pala; // Pala
 FBox huerta; // huerta
 
-int contador = 1;// Establece el tiempo total en segundos
+int contador = 3;// Establece el tiempo total en segundos
 boolean puedenAparecerCalabazas = false; // Controla si se pueden generar calabazas
 int empiezaElTiempo;// Tiempo de inicio
 
@@ -88,13 +88,13 @@ void draw() {
     }
   }
 
-  cadena.setTarget(mouseX, mouseY); // Actualiza el objetivo de la cadena (pala sigue al mouse)
+  cadena.setTarget (mouseX, mouseY); // Actualiza el objetivo de la cadena (pala sigue al mouse)
 }
 
 
 void contactStarted(FContact contact) {
-  FBody body1 = contact.getBody1();//Cuerpo 1 dentro del mundo de fisica (puede ser calabaza o bruja)
-  FBody body2 = contact.getBody2();//Cuerpo 2 dentro del mundo de fisica (puede ser calabaza o bruja)
+  FBody body1 = contact.getBody1();//Cuerpo 1 dentro del mundo de fisica (puede ser la huerta, la calabaza o la bruja)
+  FBody body2 = contact.getBody2();//Cuerpo 2 dentro del mundo de fisica (puede ser la huerta, la calabaza o la bruja)
 
   // Verifica colisiones entre la bruja y las calabazas
   for (int i = 0; i < calabazas.length; i++) { //El maximo de i es el maximo de calabazas
@@ -108,7 +108,7 @@ void contactStarted(FContact contact) {
     }
     if ((body1 == huerta && body2 == calabazas[i]) || (body1 == calabazas[i] && body2 == huerta)) {
       // Si hay colisión entre la bruja y una calabaza
-      println("¡Una calabaza rompio la huerta! Queda el %"+vidaDeLaHuerta+ " de la huerta sana.");
+      println("¡Una calabaza rompio la huerta! Queda el %" + vidaDeLaHuerta + " de la huerta sana.");
       vidaDeLaHuerta-=1;
       break;  // Sale del bucle una vez que se finaliza la colisión
     }
